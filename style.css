@@ -1,0 +1,357 @@
+html {
+ background:#E5E4E2;
+ height: 100%;
+}
+
+body {
+  z-index: 1;
+  padding-top: 20px;
+  padding-bottom: 15px;
+  background:white;
+  width:100%;
+  margin-left:auto;
+  margin-right:auto;
+  min-height: 100%;
+}
+
+.metainfo {
+    height: 680px; 
+    overflow: auto;
+}
+
+.btn-group-toggle .btn.btn-light.active {
+  background: grey;
+  color: white;
+}
+
+.dl-horizontal dt{
+    text-align: left;
+    margin-bottom: 1em;
+    width: auto;
+    padding-right: 1em;
+}
+
+.dl-horizontal dd{
+    margin-left: 0;
+    margin-bottom: 1em;
+}
+
+/* .legend {
+	font-family: 'Raleway', sans-serif;
+	fill: #333333;
+}
+
+.tooltip {
+	fill: #333333;
+}*/
+  
+#tooltip {
+  position: absolute;
+  z-index: 3;
+  width: 150px;
+  height: auto;
+  padding: 10px;
+  background-color: lightblue;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  /* pointer-events: none; */
+}
+
+#tooltip.hidden {
+  display: none;
+}
+
+#tooltip p {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+#tooltip_GO {
+  position: absolute;
+  z-index: 3;
+  width: 180px;
+  height: auto;
+  padding: 10px;
+  background-color: lightblue;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  /* pointer-events: none; */
+}
+
+#tooltip_GO.hidden {
+  display: none;
+}
+
+#tooltip_GO p {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+#tooltip_location {
+  position: absolute;
+  z-index: 3;
+  width: 260px;
+  height: auto;
+  padding: 10px;
+  background-color: lightblue;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  /* pointer-events: none; */
+}
+
+#tooltip_location.hidden {
+  display: none;
+}
+
+#tooltip_location p {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+#tooltip_location_GO {
+  position: absolute;
+  z-index: 3;
+  width: 260px;
+  height: auto;
+  padding: 10px;
+  background-color: lightblue;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  /* pointer-events: none; */
+}
+
+#tooltip_location_GO.hidden {
+  display: none;
+}
+
+#tooltip_location_GO p {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.typeahead,
+.tt-query,
+.tt-hint {
+  width: 165%;
+  height: 30px;
+  padding: 8px 12px;
+  font-size: 15px;
+  line-height: 30px;
+  /* border: 2px solid #008080; */
+  /* border: 2px solid #ccc; */
+  -webkit-border-radius: 8px;
+     -moz-border-radius: 8px;
+          border-radius: 8px;
+  outline: none;
+  box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+  margin: 5px 1px 3px 0px;
+  border: 2px solid #0097cf;
+}
+
+.typeahead {
+  background-color: #fff;
+}
+
+.typeahead:focus {
+  border: 2px solid #0097cf;
+  box-shadow: 0 0 0px #000000;
+  /* border: 2px solid #008080; */
+}
+
+.tt-query {
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+.tt-hint {
+  color: #999
+}
+
+.tt-menu {
+  width: 100%;
+  margin: 12px 0;
+  padding: 8px 0;
+  text-align: left;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  -webkit-border-radius: 8px;
+     -moz-border-radius: 8px;
+          border-radius: 8px;
+  -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+     -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+          box-shadow: 0 5px 10px rgba(0,0,0,.2);
+}
+
+.tt-suggestion {
+  padding: 3px 20px;
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.tt-suggestion:hover {
+  cursor: pointer;
+  color: #fff;
+  background-color: #0097cf;
+}
+
+.tt-suggestion.tt-cursor {
+  color: #fff;
+  background-color: #0097cf;
+
+}
+
+.tt-suggestion p {
+  margin: 0;
+}
+
+.tt-dropdown-menu {
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+#rnaseq_GeneList .tt-menu {
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+
+/* Center the loader */
+.loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 100px;
+  height: 100px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#back2Top {
+    width: 40px;
+    line-height: 40px;
+    overflow: hidden;
+    z-index: 999;
+    display: none;
+    cursor: pointer;
+    -moz-transform: rotate(270deg);
+    -webkit-transform: rotate(270deg);
+    -o-transform: rotate(270deg);
+    -ms-transform: rotate(270deg);
+    transform: rotate(270deg);
+    position: fixed;
+    bottom: 55px;
+    right: 5px;
+    background-color: #DDD;
+    color: #555;
+    text-align: center;
+    font-size: 30px;
+    text-decoration: none;
+}
+#back2Top:hover {
+    background-color: #DDF;
+    color: #000;
+}
+
+.slider.slider-horizontal .tooltip.tooltip-main.in,
+.slider.slider-vertical .tooltip.tooltip-main.in { opacity: 1 !important; }
+
+@keyframes spinner-line-fade-more {
+  0%, 100% {
+    opacity: 0; /* minimum opacity */
+  }
+  1% {
+    opacity: 1;
+  }
+}
+
+@keyframes spinner-line-fade-quick {
+  0%, 39%, 100% {
+    opacity: 0.25; /* minimum opacity */
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+@keyframes spinner-line-fade-default {
+  0%, 100% {
+    opacity: 0.22; /* minimum opacity */
+  }
+  1% {
+    opacity: 1;
+  }
+}
+
+.line {
+  fill: none;
+}
+
+.axis path,
+.axis line {
+  stroke-width: 1px;
+  fill: black;
+  stroke: black;
+  opacity: 0.3;
+  shape-rendering: crispEdges;
+}
+
+.x.axis text{
+  fill: black;
+  font-family: sans-serif;
+  font-size: 8px;
+}
+
+.tick line{
+    opacity: 0.2;
+}
+
+.spinner-border{
+  width: 20px;
+  height: 20px;
+  text-align: center;
+}

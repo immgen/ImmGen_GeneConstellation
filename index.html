@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<!-- Shared GA4 / Roll-Up Setup -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-N658P2110N"></script>
+	<script>
+  		// Make sure dataLayer is declared only once
+  		window.dataLayer = window.dataLayer || [];
+  		function gtag(){dataLayer.push(arguments);}
+  		// Initialize gtag
+  		gtag('js', new Date());
+  		// --- Existing page tag  or property ---
+  		gtag('config', 'G-N658P2110N', {
+    			'send_page_view': true
+  		});
+		// --- Roll-up property ---
+  		gtag('config', 'G-YCCBZ2S3Y1', {
+    			'send_page_view': true,
+    			'tool_name': 'Gene Constellation',     // descriptive label
+    			'hostname': window.location.hostname,
+    			'linker': {
+      			'domains': ['immgen.org','cbdm.connect.hms.harvard.edu','rstats.immgen.org','shiny.immgen.org']  // list all domains for cross-domain tracking
+    			}
+  		});
+	</script>
+
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	
+	<title>Gene Constellation</title>
+	<link rel="icon" type="image/x-icon" href="images/favicon.ico">
+
+	<!-- jQuery first, then jQuery UI, then Popper.js, then Bootstrap JS -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	
+	<!-- D3.js -->
+	<script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
+	<script type="text/javascript" src="https://d3js.org/d3-array.v2.min.js"></script>
+	<!-- Treeview -->
+	<script type="text/javascript" src="//cdn.jsdelivr.net/npm/jquery.fancytree@2.27/dist/jquery.fancytree-all-deps.min.js"></script>
+	<!-- Autocompletion -->
+	<script type="text/javascript" src="resources/typeahead.js/typeahead.bundle.min.js"></script>
+	<!-- PNG and PDF generation -->
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/canvg/dist/browser/canvg.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
+	<script type="text/javascript" src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+	<!-- Bootstrap-select -->
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.2/bootstrap-slider.min.js"></script>
+	<!-- Spin.js -->
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js'></script>
+	<!-- Custom JS -->
+	<script type="text/javascript" src="radarChart.js"></script>
+	<!-- Embed the STRING's javascript -->
+	<script type="text/javascript" src="resources/combined_embedded_network_v2.0.2.js"></script>
+	
+    <!-- Bootstrap JS CSS-->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<!-- Bootstrap-select CSS-->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.2/css/bootstrap-slider.min.css">
+	<!-- Treeview CSS-->
+	<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/jquery.fancytree@2.27/dist/skin-win8/ui.fancytree.min.css">
+	<!-- Custom CSS -->
+	<link rel="stylesheet" type="text/css" href="style.css">
+	
+</head>
+
+<body>
+	<div id="tooltip" class="hidden">
+		<p><strong>Gene: </strong><span id="tooltip_gene" style="color:#800000;font-weight:bold;"></span></p>
+      	<p><strong>Correlation: </strong><span id="cor_value" style="color:darkred;font-weight:bold;"></span></p>
+    </div>
+      
+	<div id="tooltip_GO" class="hidden">
+		<p><strong>Gene: </strong><span id="tooltip_gene_GO" style="color:#800000;font-weight:bold;"></span></p>
+      	<p><strong>Correlation: </strong><span id="cor_value_GO" style="color:darkred;font-weight:bold;"></span></p>
+      	<p><strong>GO Similarity: </strong><span id="go_similarity_value" style="color:darkred;font-weight:bold;"></span></p>
+	</div>
+      
+	<div id="tooltip_location" class="hidden">
+		<p><strong>Gene: </strong><span id="tooltip_location_gene" style="color:darkred;font-weight:bold;"></span></p>
+		<p><strong>Location: </strong><span id="tooltip_location_loc" style="color:darkred;font-weight:bold;"></span></p>
+      	<p><strong>Correlation: </strong><span id="tooltip_location_cor_value" style="color:darkred;font-weight:bold;"></span></p>
+	</div>
+      
+	<div id="tooltip_location_GO" class="hidden">
+		<p><strong>Gene: </strong><span id="tooltip_location_gene_GO" style="color:darkred;font-weight:bold;"></span></p>
+		<p><strong>Location: </strong><span id="tooltip_location_loc_GO" style="color:darkred;font-weight:bold;"></span></p>
+      	<p><strong>Correlation: </strong><span id="tooltip_location_cor_value_GO" style="color:darkred;font-weight:bold;"></span></p>
+      	<p><strong>GO Similarity: </strong><span id="tooltip_location_go_similarity_value" style="color:darkred;font-weight:bold;"></span></p>
+	</div>
+        
+	<div id="AlertModal_genesymbol" class="modal fade" role="dialog" aria-labelledby="AlertModal_genesymbol_Label" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="AlertModal_genesymbol_Label">Alert</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <p>Sorry! The gene symbol can not be found OR gene expression level is too low.</p>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<div id="AlertModal_genesymbol_absence" class="modal fade" role="dialog" aria-labelledby="AlertModal_genesymbol_absence_Label" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="AlertModal_genesymbol_absence_Label">Alert</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <p>Please insert gene symbol!</p>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+        
+	<div id="AlertModal_IE_save_image" class="modal fade" role="dialog" aria-labelledby="AlertModal_IE_save_image_Label" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="AlertModal_IE_save_image_Label">Alert</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <p>Sorry! Internet Explorer does not support the download function. Please right-click the figure and choose 'Save picture as'.</p>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	<div id="AlertModal_IE_save_pdf" class="modal fade" role="dialog" aria-labelledby="AlertModal_IE_save_pdf_Label" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="AlertModal_IE_save_pdf_Label">Alert</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <p>Sorry! Internet Explorer does not support the download function. Please try Chrome or Firefox.</p>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	<div class="modal fade" id="EmailModal" role="dialog" aria-labelledby="EmailModal_Label" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="EmailModal_Label">Send Current Plot by Email</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <form name="sendMail" id="sendMailForm">
+	          <div class="form-group">
+	            <label for="sender_email" class="col-form-label">From (required):</label>
+	            <input type="email" class="form-control" id="from_email" placeholder="Email Address" required>
+	          </div>
+	          <div class="form-group">
+	            <label for="email" class="col-form-label">To (required; separated by commas if multiple emails):</label>
+	            <input type="email" class="form-control" id="to_email" placeholder="Email Address(es)" multiple required>
+	          </div>
+	          <div class="form-group">
+	            <label for="message-text" class="col-form-label">Message (optional):</label>
+	            <textarea class="form-control" id="message-text" placeholder="Here is a Gene Constellation plot from ImmGen."></textarea>
+	          </div>
+	          <!-- Notifications for 'error' Or 'successfully'-->
+	          <div class="col-md-12 mailResponse" style="display:none;">
+	            <div class="alert alert-dismissible" role="alert">
+	              <p class="mailResponseText"></p>
+		    </div>
+		  </div>
+		  <button type="submit" class="btn btn-primary" id="send_email">Send Email</button>
+	        </form>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="close_email_form">Close</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	<div class="form-group text-center"><img src="images/RNAseqConstellationheaderOct28.svg" class="img-fluid" alt="Responsive image" width="50%"></div>
+	
+	<hr id="hr" style="width:98%;">
+
+	<div class="container-fluid" style="width:98%">
+	  <div class="row">
+	    <div class="col-12 col-lg-4">
+	      <div class="card border-0 shadow p-3 mb-5 bg-white rounded">
+	        <div class="card-body">
+	          <form>
+	            <div class="form-group row">
+	              <label class="col-form-label col-12 col-lg-4" for="rnaseq_datagroup_list"><b>Data Group:</b></label>
+	              <div class="col-12 col-lg-8 btn-group-vertical btn-group-toggle" data-toggle="buttons" id="rnaseq_datagroup_list">
+    		          <label class="btn btn-light active">
+    		            <input type="radio" autocomplete="off" value="ImmGen ULI RNASeq" checked> ImmGen ULI RNASeq
+    		          </label>
+    		          <label class="btn btn-light">
+    		            <input type="radio" autocomplete="off" value="ImmGen MNP OpenSource"> ImmGen MNP OpenSource
+    		          </label>
+    		      </div>
+	            </div>
+
+	            <div class="form-group row">
+	              <label class="col-form-label col-12 col-lg-4" for="rnaseq_population_list"><b>Correlations Within:</b></label>
+	                <select id="rnaseq_population_list" class="selectpicker show-tick col-12 col-lg-8" data-width="80%" data-container="body">
+	                  <option>Reference populations</option>
+                      <option>B Cells</option>
+                      <option>T Cells</option>
+                      <option>Myeloid Cells</option>
+	                </select>
+	                <select id="rnaseq_population_list_OSMNP" class="selectpicker show-tick col-12 col-lg-8" data-width="80%" data-container="body">
+	                  <option>Reference populations</option>
+                      <option>Dendritic Cells</option>
+                      <option>Macrophages</option>
+                      <option>Monocytes</option>
+	                </select>
+    		    </div>
+                    
+    		    <fieldset class="form-group">
+                    <div class="row">
+	                	<legend class="col-form-label col-12 col-lg-4" for="rnaseq_GeneList"><b>Gene Symbol:</b></legend>
+	                	<div id="rnaseq_GeneList" class="col-12 col-lg-8">
+	                		<input type="text" class="typeahead" id="rnaseq_Gene" placeholder="Search Gene ...">
+	                		<div class="form-check">
+	                			<input class="form-check-input" type="checkbox" value="checked" id="alias_option" onclick = "refresh_rnaseq_genelist()">
+	                			<label class="form-check-label" for="alias_option">Include Aliases</label>
+	                		</div>
+                        </div>
+                    </div>
+    		    </fieldset>
+    		    
+    		    <div class="form-group row">
+	              <label class="col-form-label col-12 col-lg-4" for="rnaseq_arrange_option"><b>Arrange By:</b></label>
+	              	<div class="col-12 col-lg-8 btn-group btn-group-toggle" data-toggle="buttons" id="rnaseq_arrange_option">
+    		          <label class="btn btn-light active">
+    		            <input type="radio" autocomplete="off" value="secondary_correlation" checked> Secondary Correlation
+    		          </label>
+    		          <label class="btn btn-light">
+    		            <input type="radio" autocomplete="off" value="gene_location"> Gene Location
+    		          </label>
+    		        </div>
+	            </div>
+	            
+    		    <div class="form-group row" id="correlation_option_row">
+	              <label class="col-form-label col-12 col-lg-4" for="rnaseq_cor_option"><b>Correlation:</b></label>
+	              	<div class="col-12 col-lg-8 btn-group btn-group-toggle" data-toggle="buttons" id="rnaseq_cor_option">
+    		          <label class="btn btn-light active">
+    		            <input type="radio" autocomplete="off" value="1" checked> Positive
+    		          </label>
+    		          <label class="btn btn-light">
+    		            <input type="radio" autocomplete="off" value="-1"> Negative
+    		          </label>
+    		        </div>
+	            </div>
+	            
+	            <br>
+    		    <div class="form-group row">
+                      <label class="col-form-label col-12 col-lg-4" for="rnaseq_zoom_option_panel"><b>Zoom Cutoff:</b></label>
+                      	<div id="rnaseq_zoom_option_panel" class="col-12 col-lg-8">
+                      	  <input id="rnaseq_zoom_option" type="text" style="height:30px;width:100%">
+                      	</div>
+    		    </div>
+                    
+    		  </form>
+    		</div>
+    	  </div>
+    	                    
+    	<div class="card border-0 shadow p-3 mb-5 bg-white rounded" id="rnaseq_meta_info" style="display:none">
+	      <div class="metainfo" id="rnaseq_metainfo_table">
+	      <table class="table table-hover table-bordered" id="metainfo_tbl" style="display:none">
+		  <tbody>
+		    <tr>
+		      <th scope="row" class="table-info" width="30%">Gene Symbol</th>
+		      <td id="rnaseq_gene_symbol"></td>
+		    </tr>
+		    <tr>
+		      <th scope="row" class="table-info">Gene Full Name</th>
+		      <td id="rnaseq_gene_name"></td>
+		    </tr>
+		    <tr>
+		      <th scope="row" class="table-info">Synonyms</th>
+		      <td id="rnaseq_synonyms"></td>
+		    </tr>
+		    <tr>
+		      <th scope="row" class="table-info" title="Summary is not available for the mouse gene. This summary is from the human ortholog.">Summary<br/><h6>(from the human ortholog)</h6></th>
+		      <td>
+		      	<div id="rnaseq_summary" style="height: 95px; overflow:auto;"></div>
+		      </td>
+		    </tr>
+		    <tr>
+		      <th scope="row" class="table-info">Feature Type</th>
+		      <td id="rnaseq_type"></td>
+		    </tr>
+		    <tr>
+		      <th scope="row" class="table-info">Genome Position</th>
+		      <td id="rnaseq_seq_map"></td>
+		    </tr>
+		    <tr>
+		      <th scope="row" class="table-info">LinkOut</th>
+		      <td id="rnaseq_linkout"></td>
+		    </tr>
+		    <tr>
+		      <th scope="row" class="table-info">Human Ortholog</th>
+		      <td id="rnaseq_human_orthology"></td>
+		    </tr>
+		    <tr>
+		      <th scope="row" class="table-info" title="Only the GO term validated by experimental evidence is shown">Gene Ontology</th>
+		      <td>
+		      	<div id="rnaseq_GO" style="height: 95px; overflow:auto;"></div>
+		      	<div id="rnaseq_GO_showAll" style="border: 1px solid lightgray; height: 2em; line-height: 2em;"></div>
+		      </td>
+		    </tr>
+		    <tr>
+		      <th scope="row" class="table-info">KEGG Pathway</th>
+		      <td>
+		      	<div id="rnaseq_kegg" style="height: 95px; overflow:auto;"></div>
+		      </td>
+		    </tr>
+		  </tbody>
+		</table>
+	      </div>
+	      </div>
+    	</div>
+
+	
+	    <div class="col-12 col-lg-8 card border-0" id="chart_card">
+	    	<ul class="nav nav-tabs" id="options_tab" role="tablist">
+			  <li class="nav-item">
+			    <a class="nav-link active" id="gene-constellation-tab" data-toggle="tab" href="#gene-constellation" role="tab">Constellation</a>
+			  </li>
+			  <li class="nav-item">
+			    <a class="nav-link" id="string-tab" data-toggle="tab" href="#string" role="tab">STRING Analysis</a>
+			  </li>
+			  <li class="nav-item">
+			    <a class="nav-link" id="enrichr-tab" data-toggle="tab" href="#enrichr" role="tab">Enrichr Analysis</a>
+			  </li>
+			</ul>
+			<div class="tab-content" id="option_tab_content">
+				<div class="tab-pane active" id="gene-constellation" role="tabpanel">
+  					<div class="container-fluid">
+  						<br>
+  						<div class="row">
+  							<div class="col-12">
+  								<div id="link_option" class="form-group" align="right" style="display:none">
+	    							<button type="button" class="btn btn-info btn-sm" id="gene_page_btn" value="">Gene Page</button>
+	    							<button type="button" class="btn btn-info btn-sm" id="rnaseq_skyline_btn" value="">RNASeq Gene Skyline</button>
+	    							<button type="button" class="btn btn-info btn-sm" id="microarray_skyline_btn" value="">Microarray Gene Skyline</button>
+	    							<button type="button" class="btn btn-info btn-sm" id="chromatin_btn" value="">Chromatin</button>
+	    							<button type="button" class="btn btn-info btn-sm" id="enhancer_network_btn" value="">Enhancer Networks</button>
+	    							<button type="button" class="btn btn-info btn-sm" id="ICA_btn" value="">Human Cell Atlas</button>
+	    						</div>
+  							</div>
+  						</div>
+  						<div class="row">
+  							<div class="col-12 col-lg-8">
+  								<div id="chart"></div>
+  							</div>
+  							<div class="col-12 col-lg-4">
+  								<div id="line_chart"></div>
+  							</div>
+  						</div>
+  						<div class="row">
+  							<div class="col-12">
+  								<div id="immgen_uli_rnaseq_save_option" class="form-group" align="right" style="display:none">
+	    	  						<button type="button" class="btn btn-primary btn-sm" id="immgen_uli_rnaseq_save_as_svg" value="">Save as SVG</button>
+	    	  						<button type="button" class="btn btn-primary btn-sm" id="immgen_uli_rnaseq_save_as_png" value="">Save as PNG</button>
+    								<button type="button" class="btn btn-primary btn-sm" id="immgen_uli_rnaseq_save_as_pdf" value="">Save as PDF</button>
+    								<button type="button" class="btn btn-primary btn-sm" id="immgen_uli_rnaseq_print" value="">Print</button>
+    								<button type="button" class="btn btn-primary btn-sm" id="immgen_uli_rnaseq_email" value="">Send Email</button>
+    		  					</div>        
+	    	  					<div id="immgen_OSMNP_uli_rnaseq_save_option" class="form-group" align="right" style="display:none">
+	    	  						<button type="button" class="btn btn-primary btn-sm" id="immgen_OSMNP_uli_rnaseq_save_as_svg" value="">Save as SVG</button>
+	    	  						<button type="button" class="btn btn-primary btn-sm" id="immgen_OSMNP_uli_rnaseq_save_as_png" value="">Save as PNG</button>
+    								<button type="button" class="btn btn-primary btn-sm" id="immgen_OSMNP_uli_rnaseq_save_as_pdf" value="">Save as PDF</button>
+    								<button type="button" class="btn btn-primary btn-sm" id="immgen_OSMNP_uli_rnaseq_print" value="">Print</button>
+    								<button type="button" class="btn btn-primary btn-sm" id="immgen_OSMNP_uli_rnaseq_email" value="">Send Email</button>
+    		  					</div>
+    		  				</div>
+  						</div>
+  					</div>
+	    	  		
+    		  	</div>
+ 
+      			<div class="tab-pane" id="string" role="tabpanel">
+      				<center>
+      					<br><button type="button" id = "string_db_link" class="btn btn-info" onclick="submit_current_network()">Check details on STRING's website</button><br><br>
+      					<div id="stringEmbedded"></div>
+      				</center>
+      			</div>
+      			
+      			<div class="tab-pane" id="enrichr" role="tabpanel">
+      				<center>
+      					<br>
+      					<div id="enrichrEmbedded"><iframe id="frame_enrichr" width="100%" frameBorder="0"></iframe></div>
+      				</center>
+      			</div>
+      		</div>
+      	</div>
+	</div>
+	<hr style="width:95%;">
+        
+	<?php 
+		include 'main.php'; 
+    ?> 
+        
+    <a id="back2Top" title="Back to top" href="#">&#10148;</a>
+	
+    <script type="text/javascript">
+	
+		var margin = {top: 50, right: 5, bottom: 50, left: 15};
+		var width = document.getElementById("chart").offsetWidth - margin.left - margin.right;
+		var height = window.innerHeight - margin.top - margin.bottom - 180;
+		
+		var margin_line = {top: 20, right: 5, bottom: 20, left: 10};
+		var width_line = document.getElementById("line_chart").offsetWidth - margin_line.left - margin_line.right;
+		var height_line = height*2/5;
+		
+		document.getElementById("frame_enrichr").style.height = (window.innerHeight - 100).toString() + 'px';
+				
+		document.getElementById("rnaseq_metainfo_table").style.height = (height - 270).toString() + "px";
+		document.getElementById("rnaseq_Gene").style.width = ($("#rnaseq_datagroup_list").width()-2).toString() + 'px';
+		$( window ).resize(function() {
+			document.getElementById("rnaseq_Gene").style.width = ($("#rnaseq_datagroup_list").width()-2).toString() + 'px';
+  		});
+
+  		var spinner;
+		var opts = {
+		  lines: 10, // The number of lines to draw
+		  length: 36, // The length of each line
+		  width: 9, // The line thickness
+		  radius: 24, // The radius of the inner circle
+		  scale: 1, // Scales overall size of the spinner
+		  corners: 1, // Corner roundness (0..1)
+		  color: '#4682B4', // CSS color or array of colors
+		  fadeColor: 'transparent', // CSS color or array of colors
+		  speed: 1, // Rounds per second
+		  rotate: 0, // The rotation offset
+		  animation: 'spinner-line-fade-default', // The CSS animation name for the lines
+		  direction: 1, // 1: clockwise, -1: counterclockwise
+		  zIndex: 2e9, // The z-index (defaults to 2000000000)
+		  className: 'spinner', // The CSS class to assign to the spinner
+		  top: '40%', // Top position relative to parent
+		  left: '50%', // Left position relative to parent
+		  shadow: '0 0 1px transparent', // Box-shadow for the lines
+		  position: 'absolute' // Element positioning
+		};
+		
+		
+		var chart = d3.select("#chart").append("svg")
+					.attr("width", width + margin.left + margin.right)
+    				.attr("height", height + margin.top + margin.bottom);
+    	
+    	
+    	var line_chart = d3.select("#line_chart").append("svg")
+  						.attr("viewBox", [0, 0, width_line, height_line])
+  						.style("overflow", "visible");
+      
+    	var dataset;    		
+    	var description1, description2;
+    	var current_datagroup, current_population_option, current_genesymbol, current_arrange_option, current_cor_option, current_filter_option;
+    	var current_zoom_cutoff = -1;
+    	var human_orthology_gene;
+      
+    	var jsonText_gencode_GRCm38 = $.ajax({                                         
+ 			datatype: 'json',      
+ 			url: 'resources/gencode_GRCm38_genes_no_rRNA_20200610_ULI_RNAseq.json',               
+			async: false
+		}).responseText;
+		var temp_gencode_GRCm38 = JSON.parse(jsonText_gencode_GRCm38);
+		
+		var gene_info_gencode_GRCm38 = [];
+		var gene_info_gencode_GRCm38_synonyms = [];
+		var gene_info_gencode_GRCm38_protein_coding = [];
+		var hashtable_synonyms = new Object();
+		
+		for(var v in temp_gencode_GRCm38) {
+			var keyname_gencode_GRCm38 = temp_gencode_GRCm38[v]['name'];
+			if(temp_gencode_GRCm38[v]['synonyms'] == 'NA') {
+				hashtable_synonyms[keyname_gencode_GRCm38] = keyname_gencode_GRCm38;
+				gene_info_gencode_GRCm38.push(keyname_gencode_GRCm38);
+				gene_info_gencode_GRCm38_synonyms.push(keyname_gencode_GRCm38);
+			}
+			else if (temp_gencode_GRCm38[v]['synonyms'].search(/\|/i) == -1) {
+				hashtable_synonyms[keyname_gencode_GRCm38] = keyname_gencode_GRCm38;
+				gene_info_gencode_GRCm38.push(keyname_gencode_GRCm38);
+				gene_info_gencode_GRCm38_synonyms.push(keyname_gencode_GRCm38);
+				
+				if(temp_gencode_GRCm38[v]['synonyms'] != keyname_gencode_GRCm38){
+					hashtable_synonyms[temp_gencode_GRCm38[v]['synonyms'] + ' (Alias of ' + keyname_gencode_GRCm38 + ')'] = keyname_gencode_GRCm38;
+					gene_info_gencode_GRCm38_synonyms.push(temp_gencode_GRCm38[v]['synonyms'] + ' (Alias of ' + keyname_gencode_GRCm38 + ')');
+				}
+			}
+			else if (temp_gencode_GRCm38[v]['synonyms'].search(/\|/i) > 0){
+				hashtable_synonyms[keyname_gencode_GRCm38] = keyname_gencode_GRCm38;
+				gene_info_gencode_GRCm38.push(keyname_gencode_GRCm38);
+				gene_info_gencode_GRCm38_synonyms.push(keyname_gencode_GRCm38);
+				
+				var res = temp_gencode_GRCm38[v]['synonyms'].split("|");
+				for(var s in res) {
+					if(res[s] != keyname_gencode_GRCm38){
+						hashtable_synonyms[res[s] + ' (Alias of ' + keyname_gencode_GRCm38 + ')'] = keyname_gencode_GRCm38;
+						gene_info_gencode_GRCm38_synonyms.push(res[s] + ' (Alias of ' + keyname_gencode_GRCm38 + ')');
+					}
+				}
+			}
+			
+			if(temp_gencode_GRCm38[v]['type'] == 'protein coding gene'){
+				gene_info_gencode_GRCm38_protein_coding.push(keyname_gencode_GRCm38);
+			}
+		}
+		
+		var jsonText_gencode_GRCm38_OSMNP = $.ajax({                                         
+ 			datatype: 'json',      
+ 			url: 'resources/gencode_GRCm38_genes_no_rRNA_20200610_OSMNP.json',               
+			async: false
+		}).responseText;
+		var temp_gencode_GRCm38_OSMNP = JSON.parse(jsonText_gencode_GRCm38_OSMNP);
+		
+		var gene_info_gencode_GRCm38_OSMNP = [];
+		var gene_info_gencode_GRCm38_OSMNP_synonyms = [];
+		var hashtable_synonyms_OSMNP = new Object();
+		
+		for(var v in temp_gencode_GRCm38_OSMNP) {
+			var keyname_gencode_GRCm38_OSMNP = temp_gencode_GRCm38_OSMNP[v]['name'];
+			if(temp_gencode_GRCm38_OSMNP[v]['synonyms'] == 'NA') {
+				hashtable_synonyms_OSMNP[keyname_gencode_GRCm38_OSMNP] = keyname_gencode_GRCm38_OSMNP;
+				gene_info_gencode_GRCm38_OSMNP.push(keyname_gencode_GRCm38_OSMNP);
+				gene_info_gencode_GRCm38_OSMNP_synonyms.push(keyname_gencode_GRCm38_OSMNP);
+			}
+			else if (temp_gencode_GRCm38_OSMNP[v]['synonyms'].search(/\|/i) == -1) {
+				hashtable_synonyms_OSMNP[keyname_gencode_GRCm38_OSMNP] = keyname_gencode_GRCm38_OSMNP;
+				gene_info_gencode_GRCm38_OSMNP.push(keyname_gencode_GRCm38_OSMNP);
+				gene_info_gencode_GRCm38_OSMNP_synonyms.push(keyname_gencode_GRCm38_OSMNP);
+				
+				if(temp_gencode_GRCm38_OSMNP[v]['synonyms'] != keyname_gencode_GRCm38_OSMNP){
+					hashtable_synonyms_OSMNP[temp_gencode_GRCm38_OSMNP[v]['synonyms'] + ' (Alias of ' + keyname_gencode_GRCm38_OSMNP + ')'] = keyname_gencode_GRCm38_OSMNP;
+					gene_info_gencode_GRCm38_OSMNP_synonyms.push(temp_gencode_GRCm38_OSMNP[v]['synonyms'] + ' (Alias of ' + keyname_gencode_GRCm38_OSMNP + ')');
+				}
+			}
+			else if (temp_gencode_GRCm38_OSMNP[v]['synonyms'].search(/\|/i) > 0){
+				hashtable_synonyms_OSMNP[keyname_gencode_GRCm38_OSMNP] = keyname_gencode_GRCm38_OSMNP;
+				gene_info_gencode_GRCm38_OSMNP.push(keyname_gencode_GRCm38_OSMNP);
+				gene_info_gencode_GRCm38_OSMNP_synonyms.push(keyname_gencode_GRCm38_OSMNP);
+				
+				var res = temp_gencode_GRCm38_OSMNP[v]['synonyms'].split("|");
+				for(var s in res) {
+					if(res[s] != keyname_gencode_GRCm38_OSMNP){
+						hashtable_synonyms_OSMNP[res[s] + ' (Alias of ' + keyname_gencode_GRCm38_OSMNP + ')'] = keyname_gencode_GRCm38_OSMNP;
+						gene_info_gencode_GRCm38_OSMNP_synonyms.push(res[s] + ' (Alias of ' + keyname_gencode_GRCm38_OSMNP + ')');
+					}
+				}
+			}
+		}
+		
+		var genes_gencode_GRCm38 = new Bloodhound({
+			datumTokenizer: Bloodhound.tokenizers.whitespace,
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			local: gene_info_gencode_GRCm38
+		});
+		
+		$('#rnaseq_GeneList .typeahead').typeahead({
+		  hint: true,
+		  highlight: true,
+		  minLength: 1
+		},
+		{
+		  name: 'genes',
+		  limit: 100,
+		  source: genes_gencode_GRCm38
+		});
+      	
+		$('#rnaseq_GeneList .typeahead').bind('typeahead:select', function(ev, suggestion) {
+				rnaseq_gene_source = "Input";
+				refresh_chart();
+		});
+				
+		var slider_values = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.96, 0.97, 0.98, 0.99];
+		$("#rnaseq_zoom_option").slider({
+			min: 0,
+			max: 13,
+			step: 1,
+			value: 8,
+			ticks: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+			formatter: function(value) {
+				return slider_values[value];
+			},
+			ticks_tooltip: true,
+			//tooltip: 'always',
+			tooltip_position: 'top'
+		})
+		.on('change', function(event) {
+			refresh_chart('', '', '');
+		});
+				
+		$("#rnaseq_datagroup_list input:radio").on('change', function() {
+    		var selected_item = $(this).val();
+    		
+    		if(selected_item == 'ImmGen ULI RNASeq') {
+				genes_gencode_GRCm38 = new Bloodhound({
+					datumTokenizer: Bloodhound.tokenizers.whitespace,
+					queryTokenizer: Bloodhound.tokenizers.whitespace,
+					local: gene_info_gencode_GRCm38
+				});
+				$('#rnaseq_GeneList .typeahead').typeahead('destroy');
+				$('#rnaseq_GeneList .typeahead').typeahead({
+				  hint: true,
+				  highlight: true,
+				  minLength: 1
+				},
+				{
+				  name: 'genes',
+				  limit: 100,
+				  source: genes_gencode_GRCm38
+				});
+				
+				$('#rnaseq_population_list').selectpicker('show');
+    			$('#rnaseq_population_list_OSMNP').selectpicker('hide');
+			}
+			else if (selected_item == 'ImmGen MNP OpenSource') {
+				genes_gencode_GRCm38_OSMNP = new Bloodhound({
+					datumTokenizer: Bloodhound.tokenizers.whitespace,
+					queryTokenizer: Bloodhound.tokenizers.whitespace,
+					local: gene_info_gencode_GRCm38_OSMNP
+				});
+				$('#rnaseq_GeneList .typeahead').typeahead('destroy');
+				$('#rnaseq_GeneList .typeahead').typeahead({
+				  hint: true,
+				  highlight: true,
+				  minLength: 1
+				},
+				{
+				  name: 'genes',
+				  limit: 100,
+				  source: genes_gencode_GRCm38_OSMNP
+				});
+				
+				$('#rnaseq_population_list').selectpicker('hide');
+    			$('#rnaseq_population_list_OSMNP').selectpicker('show');
+			}
+			
+			refresh_chart(selected_item, '', '');
+    	});
+    	
+    	$('#rnaseq_population_list').selectpicker('show');
+		$('#rnaseq_population_list_OSMNP').selectpicker('hide');
+				
+		$("#rnaseq_population_list").on('changed.bs.select', 
+    		 function(e, clickedIndex, isSelected, previousValue) {
+    		 	 refresh_chart('', '', '');
+    		 }
+    	);
+    	$("#rnaseq_population_list_OSMNP").on('changed.bs.select', 
+    		 function(e, clickedIndex, isSelected, previousValue) {
+    		 	 refresh_chart('', '', '');
+    		 }
+    	);
+    	
+    	$("#rnaseq_arrange_option input:radio").on('change', function() {
+    		var selected_item = $(this).val();
+    		refresh_chart('', selected_item, '');
+    	});
+    	
+    	$("#rnaseq_cor_option input:radio").on('change', function() {
+    		var selected_item = $(this).val();
+    		refresh_chart('', '', selected_item);
+    	});
+    	
+    	var rnaseq_gene_url = "<?php echo $gene ?>";
+    	if(rnaseq_gene_url!='None'){
+    		document.getElementById('rnaseq_Gene').value=rnaseq_gene_url;
+    		rnaseq_gene_source = "URL";
+    		refresh_chart();
+    	}
+    		
+		////////////////////////////////////////////////////////////// 
+		//////////////////// Draw the Chart ////////////////////////// 
+		////////////////////////////////////////////////////////////// 
+		
+		function refresh_chart(datagroup, arrange_option, cor_option) {
+				   			
+    			//var rnaseq_gene;
+    			var rnaseq_gene = $("#rnaseq_Gene").val();
+    			//var rnaseq_gene_url = "<?php echo $gene ?>"; 
+    			//alert(rnaseq_gene_url);
+    			//if((rnaseq_gene_url=='None')&&!rnaseq_gene_input){
+    			//	rnaseq_gene = '';
+    			//}
+    			//else if(rnaseq_gene_url!='None'){
+    			//	if(rnaseq_gene_input){
+    			//		rnaseq_gene = rnaseq_gene_input;
+    			//	}
+    			//	else {
+    			//		rnaseq_gene = rnaseq_gene_url;
+    			//	
+    			//	}
+    			//}
+    			//else if(rnaseq_gene_url=='None'){
+    			//	if(rnaseq_gene_input){
+    			//		rnaseq_gene = rnaseq_gene_input;
+    			//	}
+    			//	else {
+    			//		rnaseq_gene = '';
+    			//	}
+    			//}
+    			document.getElementById('rnaseq_Gene').value=rnaseq_gene;
+    			
+			var rnaseq_datagroup, rnaseq_arrange_option, rnaseq_cor_option, rnaseq_population_option;
+			if(datagroup) { rnaseq_datagroup = datagroup; } else { rnaseq_datagroup = $("#rnaseq_datagroup_list label.active input").val(); }
+			if(arrange_option) { rnaseq_arrange_option = arrange_option; } else { rnaseq_arrange_option = $("#rnaseq_arrange_option label.active input").val(); }
+			if(cor_option) { rnaseq_cor_option = cor_option; } else { rnaseq_cor_option = $("#rnaseq_cor_option label.active input").val(); }
+			
+			var rnaseq_zoom_option = $("#rnaseq_zoom_option").val();
+			
+			description1 = "Gene: " + rnaseq_gene;
+			description2 = "Expression Correlation Coefficient";
+    			
+			document.getElementById('chart_card').setAttribute("class", "col-12 col-lg-8 card border-0 shadow p-3 mb-5 bg-white rounded");
+			$('html,body').animate({ scrollTop: $("#hr").offset().top},'slow');
+			
+			
+			if(!rnaseq_gene) {
+				$("#AlertModal_genesymbol_absence").modal('show');
+			}
+			else if(((rnaseq_datagroup == 'ImmGen ULI RNASeq')&& (gene_info_gencode_GRCm38_synonyms.indexOf(rnaseq_gene) == -1))||((rnaseq_datagroup == 'ImmGen MNP OpenSource')&& (gene_info_gencode_GRCm38_OSMNP_synonyms.indexOf(rnaseq_gene) == -1)))
+			{
+				$("#AlertModal_genesymbol").modal('show');
+			}
+			else {
+				
+				if(rnaseq_datagroup == 'ImmGen ULI RNASeq'){
+					rnaseq_population_option = $("#rnaseq_population_list").val();
+					document.getElementById('immgen_uli_rnaseq_save_option').style.display="";
+					document.getElementById('immgen_OSMNP_uli_rnaseq_save_option').style.display="none";
+				}
+				else if(rnaseq_datagroup == 'ImmGen MNP OpenSource'){
+					rnaseq_population_option = $("#rnaseq_population_list_OSMNP").val();
+					document.getElementById('immgen_uli_rnaseq_save_option').style.display="none";
+					document.getElementById('immgen_OSMNP_uli_rnaseq_save_option').style.display="";
+				}
+				document.getElementById('link_option').style.display="";
+					
+				chart.selectAll("*").remove();
+				
+				// trigger loader
+				spinner = new Spinner(opts).spin(document.getElementById('chart'));
+				//console.log(rnaseq_datagroup);
+				//console.log(rnaseq_population_option);
+				var jsonText = $.ajax({                                         
+					type: 'POST',      
+					url: 'get_data.php',               
+					data: {'genesymbol': hashtable_synonyms[rnaseq_gene], 'datagroup': rnaseq_datagroup, 'population': rnaseq_population_option, 'arrange_option': rnaseq_arrange_option, 'cor_option': rnaseq_cor_option},
+					async: false,
+					beforeSend: function(){
+						spinner.spin();
+					},
+					complete: function() {
+						spinner.stop();
+					}
+				}).responseText;
+				
+				if(rnaseq_gene_source == 'URL'){
+					$.ajax({                                         
+								type: 'POST',      
+								url: 'save_logs.php',               
+								data: { 'gene': hashtable_synonyms[rnaseq_gene], 'populations': rnaseq_population_option, 'datagroup': rnaseq_datagroup, 'search_type': 'URL' },
+								cache: false
+		        	});
+		        } else if (rnaseq_gene_source == 'Input'){
+					$.ajax({                                         
+								type: 'POST',      
+								url: 'save_logs.php',               
+								data: { 'gene': hashtable_synonyms[rnaseq_gene], 'populations': rnaseq_population_option, 'datagroup': rnaseq_datagroup, 'search_type': 'Input' },
+								cache: false
+		        	});
+		        }
+		        	
+				var results = JSON.parse(jsonText);
+				var meta_info = results.meta;
+				var kegg_info = results.kegg;
+				var go_info = results.go;
+				var orthology_info = results.orthology;
+				var biolegend_info = results.biolegend;
+				var dataset = results.data;
+				var expr_data = {query:results.query_expr, series:results.expr, dates:results.popnames};
+				
+				var gene_symbols_string = dataset[0].map(function(i, j){return i.axis});
+				gene_symbols_string.push(hashtable_synonyms[rnaseq_gene]);
+				
+				var entrez_ids_enrichr = gene_symbols_string.join("\\n");
+				
+				var min_cor, zoom_cutoff;
+				if(results.min_cor >= 0.95){ 
+					min_cor = Math.floor(results.min_cor*100)/100; 
+				}
+				else {
+					min_cor = Math.floor(results.min_cor*10)/10;	
+				}
+				
+				if(current_zoom_cutoff == -1){
+					$('#rnaseq_zoom_option').slider('setValue', slider_values.indexOf(min_cor), true);
+					zoom_cutoff = min_cor;
+					current_zoom_cutoff = slider_values.indexOf(min_cor);
+				}
+				else if((current_datagroup != rnaseq_datagroup) || (current_population_option != rnaseq_population_option) || (current_genesymbol != rnaseq_gene) || (current_arrange_option != rnaseq_arrange_option) || (current_cor_option != rnaseq_cor_option)){
+					$('#rnaseq_zoom_option').slider('setValue', slider_values.indexOf(min_cor), true);
+					zoom_cutoff = min_cor;
+					current_zoom_cutoff = slider_values.indexOf(min_cor);
+					current_datagroup = rnaseq_datagroup;
+					current_population_option = rnaseq_population_option;
+					current_genesymbol = rnaseq_gene;
+					current_arrange_option = rnaseq_arrange_option;
+					current_cor_option = rnaseq_cor_option;
+				}
+				else if (current_zoom_cutoff != rnaseq_zoom_option){
+					$('#rnaseq_zoom_option').slider('setValue', rnaseq_zoom_option, true);
+					zoom_cutoff = slider_values[rnaseq_zoom_option];
+					current_zoom_cutoff = rnaseq_zoom_option;
+				}
+				
+				
+				document.getElementById('rnaseq_meta_info').style.display="";
+				document.getElementById('chart_card').setAttribute("class", "col-12 col-lg-8 card border-0 shadow p-3 mb-5 bg-white rounded");
+				$('html,body').animate({ scrollTop: $("#hr").offset().top},'slow');
+				
+				//////////////////////////////////////////////////////////////////////////////
+				var radarChartOptions = {
+				  w: width,
+				  h: height,
+				  margin: margin,
+				  zoom_cutoff: zoom_cutoff,
+				  color: '#4169E1'
+				};
+				
+				
+					document.getElementById('metainfo_tbl').style.display="";
+					
+					document.getElementById('rnaseq_gene_symbol').innerHTML = meta_info["Gene_Symbol_MGI"];
+					document.getElementById('rnaseq_gene_name').innerHTML = meta_info["GeneName"];
+					document.getElementById('rnaseq_synonyms').innerHTML = meta_info["Synonyms"].replace(/\|/g, "; ");
+					document.getElementById('rnaseq_type').innerHTML = meta_info["Feature_type"];
+					document.getElementById('rnaseq_linkout').innerHTML = "";
+					if(orthology_info=='None' || orthology_info["Summary"] == 'NA'){
+						document.getElementById('rnaseq_summary').innerHTML = 'NA';
+						document.getElementById("rnaseq_summary").style.height = "auto";
+					}
+					else {
+						document.getElementById('rnaseq_summary').innerHTML = orthology_info["Summary"];
+						document.getElementById("rnaseq_summary").style.height = "90px";
+					}
+					if(meta_info["Chr"] == 'NA' ) {
+						document.getElementById('rnaseq_seq_map').innerHTML = 'NA';
+					}
+					else {
+						document.getElementById('rnaseq_seq_map').innerHTML = 'Chr' + meta_info["Chr"] + ': ' + meta_info["Start"] + '-' + meta_info["End"] + ', ' + meta_info["Strand"] + ' strand';
+					}
+					if(meta_info["Entrez_Gene_ID"] != 'NA'){
+						document.getElementById('rnaseq_linkout').innerHTML = '<a href="https://www.ncbi.nlm.nih.gov/gene/' + meta_info["Entrez_Gene_ID"] + '" target="_blank"><img src="images/ncbi_logo.jpg" alt="NCBI" height="35" title="NCBI"></a>';
+					}
+					if(meta_info["Ensembl_ID"] != 'NA'){
+						document.getElementById('rnaseq_linkout').innerHTML += '&emsp;<a href="https://www.ensembl.org/Mus_musculus/geneview?gene=' + meta_info["Ensembl_ID"] + '" target="_blank"><img src="images/ensembl_logo.png" alt="Ensembl" height="30" title="Ensembl"></a>';
+					}
+					if(orthology_info=='None' || orthology_info["Human_GeneSymbol"] == 'NA'){
+						human_orthology_gene = orthology_info["Human_GeneSymbol"];
+						document.getElementById('rnaseq_human_orthology').innerHTML = 'NA';
+					}
+					else{
+						human_orthology_gene = orthology_info["Human_GeneSymbol"];
+						document.getElementById('rnaseq_human_orthology').innerHTML = '<a href="https://www.ncbi.nlm.nih.gov/gene/' + orthology_info["Human_EntrezID"] + '" target="_blank">' + orthology_info["Human_GeneSymbol"] + '</a>';
+					}
+					//document.getElementById('rnaseq_linkout').innerHTML += '&emsp;<a href="https://www.wikigenes.org/e/gene/e/' + meta_info["Entrez_Gene_ID"] + '.html" target="_blank"><img src="images/wikigenes_logo.gif" alt="WikiGenes" height="30" title="WikiGenes"></a>';
+					document.getElementById('rnaseq_linkout').innerHTML += '&emsp;<a href="https://www.alliancegenome.org/gene/' + meta_info["MGI_ID"] + '" target="_blank"><img src="images/alliance_logo.jpg" alt="Alliance" height="28" title="Alliance"></a>';
+					document.getElementById('rnaseq_linkout').innerHTML += '&NewLine;&emsp;<a href="https://www.proteinatlas.org/' + orthology_info["Human_EnsemblID"] + '-' + orthology_info["Human_GeneSymbol"] + '" target="_blank"><img src="images/HPA_logo.png" alt="HPA" height="20" title="The Human Protein Atlas"></a>';
+					
+					if(biolegend_info!='None'){
+						document.getElementById('rnaseq_linkout').innerHTML += '&emsp;<a href="https://www.biolegend.com/en-us/' + biolegend_info["Pathway"] + '" target="_blank"><img src="images/biolegend_logo.png" alt="BioLegend" height="30" title="BioLegend"></a>';
+					}
+					
+					var go_text='';
+					for(var g = 0; g < go_info.length; g++){
+						go_text = go_text + '<a href="https://amigo.geneontology.org/amigo/term/' + go_info[g]['go_id'] + '" target="_blank">' + go_info[g]['go_name'] + ' (' + go_info[g]['go_category'] + ')</a><br>';
+					}
+					if(go_info.length>1){
+						document.getElementById('rnaseq_GO').innerHTML = go_text;
+						document.getElementById("rnaseq_GO").style.height = "90px";
+						document.getElementById('rnaseq_GO_showAll').style.display="";
+					}
+					else{
+						document.getElementById('rnaseq_GO').innerHTML = 'N/A';
+						document.getElementById("rnaseq_GO").style.height = "auto";
+						document.getElementById('rnaseq_GO_showAll').style.display="none";
+					}
+					document.getElementById('rnaseq_GO_showAll').innerHTML = '<p><b>Show All:</b>&#9;&#9;<a href="https://www.informatics.jax.org/go/marker/' + meta_info["MGI_ID"] + '#tabular" target="_blank">Tablular View</a>&#9;|&#9;<a href="https://www.informatics.jax.org/marker/gograph/' + meta_info["MGI_ID"] + '" target="_blank">Graph View</a></p>';
+				
+					
+					var kegg_text='';
+					for(var k = 0; k < kegg_info.length; k++){
+						kegg_text = kegg_text + '<a href="https://www.genome.jp/kegg-bin/show_pathway?' + kegg_info[k]['kegg_id'] + '+' + meta_info["Entrez_Gene_ID"] + '" target="_blank">' + kegg_info[k]['kegg_name'] + '</a><br>';
+					}
+					if(kegg_info.length>2){
+						document.getElementById('rnaseq_kegg').innerHTML = kegg_text;
+						document.getElementById("rnaseq_kegg").style.height = "90px";
+					}
+					else{
+						document.getElementById('rnaseq_kegg').innerHTML = 'N/A';
+						document.getElementById("rnaseq_kegg").style.height = "auto";
+					}
+										
+					RadarChart("#chart", dataset, radarChartOptions, rnaseq_arrange_option);
+					
+					document.getElementById('frame_enrichr').src = 'https://rstats.immgen.org/GeneConstellation/enrichr.html?genes=' + entrez_ids_enrichr;
+   					
+                
+					line_chart.selectAll("*").remove();
+					
+					data = expr_data;
+					population_counts = data.dates.length;
+					/* Scale */
+					var xScale = d3.scalePoint()
+								.domain(data.dates)
+								.range([margin_line.left, width_line-margin_line.right]);
+								
+					var yScale = d3.scaleLog().base(10).nice()
+								.domain([1, d3.max(data.series, d => d3.max(d.values))*3])
+								.range([height_line - margin_line.bottom, margin_line.top])
+					
+					function range(value) {
+						var array_out = [];
+						for(j=0; j<=value; j++) { array_out.push(Math.pow(10,j)); }
+						return array_out;
+					}
+					
+					var tickvalues = range(Math.floor(Math.log(d3.max(data.series, d => d3.max(d.values))*3)/Math.log(10)))
+					
+					var xAxis = g => g
+					    .attr("transform", `translate(0,${height_line - margin_line.bottom})`)
+					    .call(d3.axisBottom(xScale).tickSizeOuter(0))
+					    .selectAll("text")	
+					        .style("text-anchor", "end")
+					        .style("font-size", function(d) { if (population_counts >50) return "7px"; else return "10px"; })
+					        .attr("dx", "-.8em")
+					        .attr("dy", "-.35em")
+					        .attr("transform", "rotate(-75)")
+					        .on("mouseover", function(d,i){
+					        		d3.select(this).style("fill", "#00008B")
+					        		d3.select(this).style("font-size", function() { if(population_counts >50) return "10px"; else return "11px"; });
+					        		d3.select(this).style("font-weight", "bold");
+					        })
+					        .on("mouseout", function(d,i){
+					        		d3.select(this).style("fill", "black");
+					        		d3.select(this).style("font-size", function() { if(population_counts >50) return "7px"; else return "10px"; });
+					        		d3.select(this).style("font-weight", "normal");
+					        });
+					    
+					var yAxis = g => g
+					    .attr("transform", `translate(${margin_line.left},0)`)
+					    .call(d3.axisLeft(yScale).tickValues(tickvalues).tickSize(-width_line+margin_line.right+margin_line.left).tickPadding(5).tickSizeOuter(0).tickFormat(d3.format(",d")))
+					
+					var line = d3.line()
+					    .defined(d => !isNaN(d))
+					    .x((d, i) => xScale(data.dates[i]))
+					    .y(d => yScale(d))
+                
+					line_chart.append("g")
+					      .call(xAxis);
+					
+					line_chart.append("g")
+					      .call(yAxis);
+					
+					var path = line_chart.append("g")
+					      .attr("fill", "none")
+					      .attr("stroke", "steelblue")
+					      .attr("stroke-width", 0.5)
+					      .attr("stroke-linejoin", "round")
+					      .attr("stroke-linecap", "round")
+					    .selectAll("path")
+					    .data(data.series)
+					    .join("path")
+					      .style("mix-blend-mode", "multiply")
+					      .attr("class", function(d,i) { return "expr_line_all expr_line" + d.name;})
+					      .attr("d", d => line(d.values));
+					
+					var path_query = line_chart.append("g")
+					      .attr("fill", "none")
+					      .attr("stroke", "#800000")
+					      .attr("stroke-width", 1.6)
+					      .attr("stroke-linejoin", "round")
+					      .attr("stroke-linecap", "round")
+					    .selectAll("path")
+					    .data(data.query)
+					    .join("path")
+					      .style("mix-blend-mode", "multiply")
+					      .attr("d", d => line(d.values));
+                
+					line_chart.append("text")
+					    .attr("x", width_line/4 + margin_line.left )
+					    .attr("y", margin_line.top/2)
+					    .attr("text-anchor", "middle")
+					    .style("font-size", "14px")
+    					.style("font-weight", "bold")
+    					.style("font-family", "sans-serif")
+					    .style("fill", "#800000")
+					    .text(data.query[0].name);
+					    
+					line_chart.selectAll(".target_gene")
+						.data(data.series)
+						.enter()
+						.append("text")
+						.attr("class", function(d) { return "target_gene" + d.name; })
+					    .attr("x", width_line*3/4 + margin_line.left)
+					    .attr("y", margin_line.top/2)
+					    .style("text-anchor", "middle")
+					    .style("font-size", "14px")
+    					.style("font-weight", "bold")
+    					.style("font-family", "sans-serif")
+					    .style("fill", "steelblue")
+					    .style("opacity", 0)
+					    .text(function(d) { return d.name; });
+					
+					line_chart.append("text")
+						.attr("x",0-height_line/2)
+						.attr("y",0-margin_line.left*5)
+						.attr("dy","1em")
+						.style("text-anchor", "middle")
+						.style("font-size", "11px")
+    					.style("font-family", "sans-serif")
+						.attr("transform","rotate(-90)")
+						.text("Normalized expression value");
+					
+					line_chart.node();
+					
+					getSTRING('https://string-db.org', {
+                          'species':'10090',
+                          'identifiers': gene_symbols_string,
+                          'network_flavor':'confidence', 
+                          'caller_identity': 'www.immgen.org'
+                    });	
+			}
+		}
+			
+		function refresh_rnaseq_genelist() {
+			var selected_datagroup = $("#rnaseq_datagroup_list label.active input").val();
+			
+			if($('#alias_option').is(':checked')){
+				if(selected_datagroup == 'ImmGen ULI RNASeq') {
+					genes_gencode_GRCm38 = new Bloodhound({
+						datumTokenizer: Bloodhound.tokenizers.whitespace,
+						queryTokenizer: Bloodhound.tokenizers.whitespace,
+						local: gene_info_gencode_GRCm38_synonyms
+					});
+					$('#rnaseq_GeneList .typeahead').typeahead('destroy');
+					$('#rnaseq_GeneList .typeahead').typeahead({
+					  hint: true,
+					  highlight: true,
+					  minLength: 1
+					},
+					{
+					  name: 'genes',
+					  limit: 100,
+					  source: genes_gencode_GRCm38
+					});
+				}
+				else if (selected_datagroup == 'ImmGen MNP OpenSource') {
+					genes_gencode_GRCm38_OSMNP = new Bloodhound({
+						datumTokenizer: Bloodhound.tokenizers.whitespace,
+						queryTokenizer: Bloodhound.tokenizers.whitespace,
+						local: gene_info_gencode_GRCm38_OSMNP_synonyms
+					});
+					$('#rnaseq_GeneList .typeahead').typeahead('destroy');
+					$('#rnaseq_GeneList .typeahead').typeahead({
+					  hint: true,
+					  highlight: true,
+					  minLength: 1
+					},
+					{
+					  name: 'genes',
+					  limit: 100,
+					  source: genes_gencode_GRCm38_OSMNP
+					});
+				}
+			}
+			else {
+				if(selected_datagroup == 'ImmGen ULI RNASeq') {
+					genes_gencode_GRCm38 = new Bloodhound({
+						datumTokenizer: Bloodhound.tokenizers.whitespace,
+						queryTokenizer: Bloodhound.tokenizers.whitespace,
+						local: gene_info_gencode_GRCm38
+					});
+					$('#rnaseq_GeneList .typeahead').typeahead('destroy');
+					$('#rnaseq_GeneList .typeahead').typeahead({
+					  hint: true,
+					  highlight: true,
+					  minLength: 1
+					},
+					{
+					  name: 'genes',
+					  limit: 100,
+					  source: genes_gencode_GRCm38
+					});
+				}
+				else if (selected_datagroup == 'ImmGen MNP OpenSource') {
+					genes_gencode_GRCm38_OSMNP = new Bloodhound({
+						datumTokenizer: Bloodhound.tokenizers.whitespace,
+						queryTokenizer: Bloodhound.tokenizers.whitespace,
+						local: gene_info_gencode_GRCm38_OSMNP
+					});
+					$('#rnaseq_GeneList .typeahead').typeahead('destroy');
+					$('#rnaseq_GeneList .typeahead').typeahead({
+					  hint: true,
+					  highlight: true,
+					  minLength: 1
+					},
+					{
+					  name: 'genes',
+					  limit: 100,
+					  source: genes_gencode_GRCm38_OSMNP
+					});
+				}
+			}
+		}
+		
+		////////////////////////////////////////////////////////////////
+		$("#gene_page_btn").click(function() { 
+    		var rnaseq_gene = $("#rnaseq_Gene").val();
+			window.open( 'https://rstats.immgen.org/ImmGen_Gene_Page/index.html?gene=' + hashtable_synonyms[rnaseq_gene] );
+		});
+		
+		$("#rnaseq_skyline_btn").click(function() { 
+    		var rnaseq_gene = $("#rnaseq_Gene").val();
+			window.open( 'https://rstats.immgen.org/Skyline/skyline.html?gene=' + hashtable_synonyms[rnaseq_gene] );
+		});
+		
+		$("#microarray_skyline_btn").click(function() { 
+    		var rnaseq_gene = $("#rnaseq_Gene").val();
+			window.open( 'https://rstats.immgen.org/Skyline_microarray/skyline.html?gene=' + hashtable_synonyms[rnaseq_gene] );
+		});
+		
+		$("#chromatin_btn").click(function() { 
+			var rnaseq_gene = $("#rnaseq_Gene").val();
+    		window.open( 'https://rstats.immgen.org/Chromatin/chromatin.html?gene=' + hashtable_synonyms[rnaseq_gene] );
+		});
+		
+		$("#enhancer_network_btn").click(function() { 
+			var rnaseq_gene = $("#rnaseq_Gene").val();
+    		window.open( 'https://rstats.immgen.org/EnhancerControl/index.html?gene=' + hashtable_synonyms[rnaseq_gene] );
+		});
+		
+		$("#ICA_btn").click(function() { 
+    		window.open( 'https://rstats.immgen.org/Skyline_human/ICA_Skyline.php?gene=' + human_orthology_gene + '&celltype=all&organ=Blood&datatype=rnaseq&scale=Local' );
+		});
+			
+			
+		$("#immgen_uli_rnaseq_save_as_svg").click(function() { 
+			if (/*@cc_on!@*/false || !!document.documentMode) {
+				$("#AlertModal_IE_save_image").modal('show');
+			}
+			else {
+				var svgString = new XMLSerializer().serializeToString(document.getElementById("chart").getElementsByTagName("svg")[0]),
+				blob = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"}),
+				url = window.URL.createObjectURL(blob);
+				
+				var a = document.createElement('a');
+				a.href = url;
+				a.download = 'Gene_Constellation.svg';
+				document.body.appendChild(a);
+				a.click();
+			}
+		});
+		$("#immgen_uli_rnaseq_save_as_png").click(function() {
+			if (/*@cc_on!@*/false || !!document.documentMode) {
+				$("#AlertModal_IE_save_image").modal('show');
+			}
+			else {
+				var svgString = new XMLSerializer().serializeToString(document.getElementById("chart").getElementsByTagName("svg")[0]),
+				    blob = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"}),
+				    url = window.URL.createObjectURL(blob);
+				      
+				var img = d3.select('body').append('img').classed('exportImg', true).node();
+				img.onload = function () {
+					var canvas = document.createElement('canvas'),
+					ctx = canvas.getContext('2d');
+					canvas.width = width + margin.left + margin.right + 50;
+					canvas.height = height + margin.top + margin.bottom + 50;
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+					d3.select('img.exportImg').remove();
+					
+					// create link
+					var a = document.createElement('a');
+					a.href = canvas.toDataURL();
+					a.download = 'Gene_Constellation.png';
+					document.body.appendChild(a);
+					a.click();
+				};
+				img.src = url;
+			}
+		});
+		$("#immgen_uli_rnaseq_save_as_pdf").click(function() {
+			if (/*@cc_on!@*/false || !!document.documentMode) {
+				$("#AlertModal_IE_save_pdf").modal('show');
+			}
+			else {
+				var svgString = new XMLSerializer().serializeToString(document.getElementById("chart").getElementsByTagName("svg")[0]),
+				    blob = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"}),
+				    url = window.URL.createObjectURL(blob);
+				      
+				var img = d3.select('body').append('img').classed('exportImg', true).node();
+				img.onload = function () {
+					var canvas = document.createElement('canvas'),
+					ctx = canvas.getContext('2d');
+					canvas.width = width + margin.left + margin.right + 50;
+					canvas.height = height + margin.top + margin.bottom + 50;
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+					d3.select('img.exportImg').remove();
+					
+					// create link
+					var imgData = canvas.toDataURL('image/png');
+					var doc = new jsPDF('l', 'mm', 'letter');
+					doc.addImage(imgData, 'PNG', 0, 10, doc.internal.pageSize.width-10, doc.internal.pageSize.height-10, null, 'NONE');
+					doc.save('Gene_Constellation.pdf');
+				};
+				img.src = url;
+			}
+		});
+		$("#immgen_uli_rnaseq_print").click(function() { print_div(); });
+		$("#immgen_uli_rnaseq_email").click(function() {
+			$("#EmailModal").modal('show');
+		});
+		
+		
+		$("#immgen_OSMNP_uli_rnaseq_save_as_svg").click(function() { 
+			if (/*@cc_on!@*/false || !!document.documentMode) {
+				$("#AlertModal_IE_save_image").modal('show');
+			}
+			else {
+				var svgString = new XMLSerializer().serializeToString(document.getElementById("chart").getElementsByTagName("svg")[0]),
+				blob = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"}),
+				url = window.URL.createObjectURL(blob);
+				
+				var a = document.createElement('a');
+				a.href = url;
+				a.download = 'Gene_Constellation.svg';
+				document.body.appendChild(a);
+				a.click();
+			}
+		});
+		$("#immgen_OSMNP_uli_rnaseq_save_as_png").click(function() {
+			if (/*@cc_on!@*/false || !!document.documentMode) {
+				$("#AlertModal_IE_save_image").modal('show');
+			}
+			else {
+				var svgString = new XMLSerializer().serializeToString(document.getElementById("chart").getElementsByTagName("svg")[0]),
+				    blob = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"}),
+				    url = window.URL.createObjectURL(blob);
+				      
+				var img = d3.select('body').append('img').classed('exportImg', true).node();
+				img.onload = function () {
+				 	var canvas = document.createElement('canvas'),
+				    	ctx = canvas.getContext('2d');
+				    	canvas.width = width + margin.left + margin.right + 50;
+				    	canvas.height = height + margin.top + margin.bottom + 50;
+				    	ctx.clearRect(0, 0, canvas.width, canvas.height);
+				    	ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+				    	d3.select('img.exportImg').remove();
+				    	
+				    	// create link
+				    	var a = document.createElement('a');
+				    	a.href = canvas.toDataURL();
+				    	a.download = 'Gene_Constellation.png';
+				    	document.body.appendChild(a);
+				    	a.click();
+				};
+				img.src = url;
+			}
+		});
+		$("#immgen_OSMNP_uli_rnaseq_save_as_pdf").click(function() { 
+			if (/*@cc_on!@*/false || !!document.documentMode) {
+				$("#AlertModal_IE_save_pdf").modal('show');
+			}
+			else {
+				var svgString = new XMLSerializer().serializeToString(document.getElementById("chart").getElementsByTagName("svg")[0]),
+				    blob = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"}),
+				    url = window.URL.createObjectURL(blob);
+				      
+				var img = d3.select('body').append('img').classed('exportImg', true).node();
+				img.onload = function () {
+					var canvas = document.createElement('canvas'),
+					ctx = canvas.getContext('2d');
+					canvas.width = width + margin.left + margin.right + 50;
+					canvas.height = height + margin.top + margin.bottom + 50;
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+					d3.select('img.exportImg').remove();
+					
+					// create link
+					var imgData = canvas.toDataURL('image/png');
+					var doc = new jsPDF('l', 'mm', 'letter');
+					doc.addImage(imgData, 'PNG', 0, 10, doc.internal.pageSize.width-10, doc.internal.pageSize.height-10, null, 'NONE');
+					doc.save('Gene_Constellation.pdf');
+				};
+				img.src = url;
+			}
+		});
+		$("#immgen_OSMNP_uli_rnaseq_print").click(function() { print_div(); });
+		$("#immgen_OSMNP_uli_rnaseq_email").click(function() { 
+			$("#EmailModal").modal('show');
+		});
+		
+		function print_div() {
+			var printContents = document.getElementById("chart").innerHTML;
+			var originalContents = document.body.innerHTML;
+			
+			document.body.innerHTML = printContents;
+			window.print();
+			window.location.reload();
+		}
+		
+		$('#sendMailForm').submit(function (e) {
+			e.preventDefault();
+		    	
+			var msg;
+		    	if($('#message-text').val()) { 
+		    		msg = $('#message-text').val(); 
+		    	} else { 
+		    		msg = "Here is a Gene Constellation plot from ImmGen.";
+		    	}
+		    	
+		    	html2canvas(document.getElementById('chart'), {
+            			width: document.getElementById("chart").offsetWidth + 50,
+            			height: window.innerHeight +300,
+            			//x: margin.left,
+            			y: 10
+            			}).then(function (canvas) {
+					var imagedata = canvas.toDataURL('image/png');
+					var imgdata = imagedata.replace(/^data:image\/(png|jpg);base64,/, "");
+					
+ 					$.ajax({
+ 						type: 'POST',
+ 						url: 'email.php',
+ 						data: { imgdata:imgdata, from_email: $('#from_email').val(), to_email: $('#to_email').val(), msg: msg, gene: $("#rnaseq_Gene").val() },
+ 						success: function (data) {
+						    // For Notification
+		        			    document.getElementById("sendMailForm").reset();
+		        			    var $alertDiv = $(".mailResponse");
+		        			    $alertDiv.show();
+		        			    $alertDiv.find('.alert').removeClass('alert-danger alert-success');
+		        			    $alertDiv.find('.mailResponseText').text("");
+		        			    if(data.error){
+		        			        $alertDiv.find('.alert').addClass('alert-danger');
+		        			        $alertDiv.find('.mailResponseText').text("Failed! Please send the email again.");
+		        			    }else{
+		        			        $alertDiv.find('.alert').addClass('alert-success');
+		        			        $alertDiv.find('.mailResponseText').text("The email is sent successfully!");
+		        			    }
+		        			}
+ 					});
+ 			});
+		});
+			
+		$(window).scroll(function() {
+		    var height = $(window).scrollTop();
+		    if (height > 100) {
+		        $('#back2Top').fadeIn();
+		    } else {
+		        $('#back2Top').fadeOut();
+		    }
+		});
+		
+		$(document).ready(function() {
+		    $("#back2Top").click(function(event) {
+		        event.preventDefault();
+		        $("html, body").animate({ scrollTop: 0 }, "slow");
+		        return false;
+		    });
+		    
+		    var gene_symbol_input = document.getElementById("rnaseq_Gene");
+			gene_symbol_input.addEventListener("keyup", function(event) {
+			  if (event.keyCode === 13) {
+			   event.preventDefault();
+			   //document.getElementById("rnaseq_submit").click();
+			   refresh_chart();
+			  }
+			});
+		});
+		
+	</script>
+</body>
+</html>
